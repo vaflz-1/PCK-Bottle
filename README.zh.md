@@ -10,6 +10,7 @@
 [![Universal](https://img.shields.io/badge/Universal-Intel%20%2B%20Apple%20Silicon-555)](../../releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Download](https://img.shields.io/badge/⬇%20下载-Releases-2ea44f)](../../releases/latest)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-支持-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/vaflz)
 
 ![PCK Bottle 编辑 Godot .pck](docs/screenshot-editor.png)
 
@@ -104,6 +105,11 @@ cargo test --manifest-path crates/pck-core/Cargo.toml
 
 应用是覆盖在内置 `pck-core-cli` 之上的轻量 AppKit 外壳，因此解析与重打包代码都集中
 在一个 Rust crate 里。
+
+## ❤️ 支持
+
+PCK Bottle 是免费的。如果它帮你省了事，可以到
+[ko-fi.com/vaflz](https://ko-fi.com/vaflz) 打赏一点。完全自愿。
 
 ## 📄 许可证
 

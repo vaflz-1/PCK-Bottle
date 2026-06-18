@@ -97,6 +97,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(appMenuItem)
         let appMenu = NSMenu(title: "PCK Bottle")
         appMenuItem.submenu = appMenu
+        // A single, unobtrusive donation entry — no launch pop-ups or nagging.
+        let supportItem = NSMenuItem(title: localized("support"), action: #selector(openSupport), keyEquivalent: "")
+        supportItem.target = self
+        appMenu.addItem(supportItem)
+        appMenu.addItem(NSMenuItem.separator())
         appMenu.addItem(NSMenuItem(title: "Quit PCK Bottle", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         let fileMenuItem = NSMenuItem()
@@ -159,6 +164,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openDocument(_ sender: Any?) {
         browserWindowController?.openPathPanelFromMenu()
+    }
+
+    @objc private func openSupport() {
+        if let url = URL(string: "https://ko-fi.com/vaflz") {
+            NSWorkspace.shared.open(url)
+        }
     }
 }
 

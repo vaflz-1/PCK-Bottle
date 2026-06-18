@@ -10,6 +10,7 @@ Edit Godot `.pck` packages on macOS without the command line.
 [![Universal](https://img.shields.io/badge/Universal-Intel%20%2B%20Apple%20Silicon-555)](../../releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Download](https://img.shields.io/badge/⬇%20Download-Releases-2ea44f)](../../releases/latest)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/vaflz)
 
 ![PCK Bottle editing a Godot .pck](docs/screenshot-editor.png)
 
@@ -113,6 +114,11 @@ no home directory or username.
 
 The app is a thin AppKit shell over the bundled `pck-core-cli`, so the parsing
 and repack code stays in one Rust crate.
+
+## ❤️ Support
+
+PCK Bottle is free. If it saved you some hassle, you can leave a tip at
+[ko-fi.com/vaflz](https://ko-fi.com/vaflz). Entirely optional.
 
 ## 📄 License
 

@@ -10,6 +10,7 @@
 [![Universal](https://img.shields.io/badge/Universal-Intel%20%2B%20Apple%20Silicon-555)](../../releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Download](https://img.shields.io/badge/⬇%20Скачать-Releases-2ea44f)](../../releases/latest)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Поддержать-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/vaflz)
 
 ![PCK Bottle — редактирование Godot .pck](docs/screenshot-editor.png)
 
@@ -115,6 +116,11 @@ cargo test --manifest-path crates/pck-core/Cargo.toml
 
 Приложение — тонкая оболочка AppKit над встроенным `pck-core-cli`, поэтому код
 разбора и упаковки живёт в одном Rust-крейте.
+
+## ❤️ Поддержать
+
+PCK Bottle бесплатный. Если он сэкономил тебе нервы, можешь кинуть пару баксов на
+[ko-fi.com/vaflz](https://ko-fi.com/vaflz). Полностью по желанию.
 
 ## 📄 Лицензия
 

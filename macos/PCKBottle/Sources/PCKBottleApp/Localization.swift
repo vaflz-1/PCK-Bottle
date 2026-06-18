@@ -131,6 +131,7 @@ private let localizedStrings: [AppLocale: [String: String]] = [
         "restoreBackupInfo": "Текущая версия пакета будет заменена копией от %@.",
         "restoreBackupNone": "Резервная копия не найдена. Она создаётся при запаковке, если включена галочка «Резервная копия оригинала».",
         "restoreBackupDone": "Восстановлено из резервной копии от %@.",
+        "support": "Поддержать PCK Bottle ♥",
         "fromSource": "из %@",
     ],
     .en: [
@@ -220,6 +221,7 @@ private let localizedStrings: [AppLocale: [String: String]] = [
         "restoreBackupInfo": "The current package will be replaced with the backup from %@.",
         "restoreBackupNone": "No backup found. One is created on Pack when the “Backup original” checkbox is enabled.",
         "restoreBackupDone": "Restored from the backup from %@.",
+        "support": "Support PCK Bottle ♥",
         "fromSource": "from %@",
     ],
     .zh: [
@@ -309,6 +311,7 @@ private let localizedStrings: [AppLocale: [String: String]] = [
         "restoreBackupInfo": "当前包将被 %@ 的备份替换。",
         "restoreBackupNone": "未找到备份。勾选“备份原文件”后，在打包时会创建备份。",
         "restoreBackupDone": "已从 %@ 的备份恢复。",
+        "support": "支持 PCK Bottle ♥",
         "fromSource": "来自 %@",
     ],
 ]
