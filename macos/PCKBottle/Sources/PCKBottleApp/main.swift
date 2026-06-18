@@ -167,9 +167,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSupport() {
-        if let url = URL(string: "https://ko-fi.com/vaflz") {
-            NSWorkspace.shared.open(url)
-        }
+        openKoFi()
     }
 }
 
@@ -436,6 +434,7 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
     private let titleLabel = NSTextField(labelWithString: "")
     private let statusLabel = NSTextField(labelWithString: "")
     private let openButton = NSButton(title: "Open Game or PCK", target: nil, action: nil)
+    private let supportButton = NSButton()
     private let dropView = DropTargetView()
     private var loadedSourceURL: URL?
     private var loadedPackageCount = 0
@@ -472,6 +471,23 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
 
         dropView.delegate = self
 
+        // Unobtrusive donation entry pinned to the sidebar bottom: an outline
+        // heart + "Support", styled like a quiet link. Opens Ko-fi on click.
+        supportButton.isBordered = false
+        supportButton.bezelStyle = .inline
+        supportButton.imagePosition = .imageLeading
+        supportButton.font = NSFont.systemFont(ofSize: 12, weight: .regular)
+        supportButton.target = self
+        supportButton.action = #selector(supportPressed)
+        supportButton.translatesAutoresizingMaskIntoConstraints = false
+        if #available(macOS 11.0, *) {
+            // Outline heart (SF Symbol). The title carries a ♡ fallback below.
+            supportButton.image = NSImage(systemSymbolName: "heart", accessibilityDescription: localized("supportShort"))
+        }
+        if #available(macOS 10.14, *) {
+            supportButton.contentTintColor = .secondaryLabelColor
+        }
+
         let stack = NSStackView(views: [titleRow, statusLabel, openButton, dropView])
         stack.orientation = .vertical
         stack.alignment = .leading
@@ -479,6 +495,7 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         container.addSubview(stack)
+        container.addSubview(supportButton)
         NSLayoutConstraint.activate([
             stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24),
             stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -24),
@@ -489,9 +506,15 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
             dropView.heightAnchor.constraint(equalToConstant: 168),
             dropView.leadingAnchor.constraint(equalTo: stack.leadingAnchor),
             dropView.trailingAnchor.constraint(equalTo: stack.trailingAnchor),
+            supportButton.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24),
+            supportButton.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16),
         ])
 
         view = container
+    }
+
+    @objc private func supportPressed() {
+        openKoFi()
     }
 
     override func viewDidLoad() {
@@ -527,6 +550,11 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
         titleLabel.stringValue = localized("games")
         openButton.title = localized("openGameOrPck")
         dropView.title = localized("dropAppOrPck")
+        if #available(macOS 11.0, *) {
+            supportButton.title = localized("supportShort")
+        } else {
+            supportButton.title = "♡ " + localized("supportShort")
+        }
         updateSourceStatus()
     }
 
@@ -3263,6 +3291,13 @@ private func relativePath(from root: URL, to child: URL) -> String {
         return String(childPath.dropFirst(rootPath.count + 1))
     }
     return child.lastPathComponent
+}
+
+/// Open the project's Ko-fi page in the user's browser (optional donations).
+func openKoFi() {
+    if let url = URL(string: "https://ko-fi.com/vaflz") {
+        NSWorkspace.shared.open(url)
+    }
 }
 
 let app = NSApplication.shared
