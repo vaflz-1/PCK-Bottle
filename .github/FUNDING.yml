@@ -1,0 +1,8 @@
+# Show a "Sponsor" button on the repo. Uncomment ONE or more and fill in your
+# handle. Docs:
+# https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+#
+# ko_fi: yourname              # ko-fi.com — quick signup, no fees on donations
+# buy_me_a_coffee: yourname    # buymeacoffee.com — quick signup
+# github: [vaflz-1]            # GitHub Sponsors — needs Stripe + approval
+# custom: ["https://www.paypal.me/yourname"]   # any URL (PayPal.me, crypto, …)
