@@ -1,0 +1,99 @@
+name: Release
+
+# Build the universal macOS app, package a .dmg, and attach it to a GitHub
+# Release when a v* tag is pushed. Code signing + notarization run only if the
+# corresponding repository secrets are configured; otherwise an ad-hoc-signed
+# (unsigned-for-distribution) .dmg is produced and users clear quarantine
+# manually (see RELEASE.md / README.md).
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    # The `secrets` context is NOT allowed in step `if:` conditions, but it IS
+    # allowed in job-level `env`. Capture secret-presence as booleans here, then
+    # the optional signing/notarization steps gate on these env flags.
+    env:
+      HAS_SIGNING_CERT: ${{ secrets.MACOS_CERT_P12_BASE64 != '' }}
+      HAS_NOTARIZATION: ${{ secrets.MACOS_SIGN_IDENTITY != '' && secrets.APPLE_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust + Apple targets
+        run: |
+          rustup update stable
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          REF="${GITHUB_REF_NAME:-}"
+          VERSION="${REF#v}"
+          VERSION="${VERSION:-$(tr -d '[:space:]' < VERSION)}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build=$(date +%Y%m%d%H%M)" >> "$GITHUB_OUTPUT"
+
+      - name: Run core tests
+        run: cargo test --manifest-path crates/pck-core/Cargo.toml
+
+      - name: Import signing certificate (optional)
+        if: env.HAS_SIGNING_CERT == 'true'
+        env:
+          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN=build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          echo "$MACOS_CERT_P12_BASE64" | base64 --decode > cert.p12
+          security import cert.p12 -k "$KEYCHAIN" -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          rm -f cert.p12
+
+      - name: Build universal .app
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+          APP_BUILD: ${{ steps.version.outputs.build }}
+          CODESIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+        run: |
+          CONFIGURATION=release bash macos/PCKBottle/scripts/build-app.sh
+
+      - name: Notarize + staple (optional)
+        if: env.HAS_NOTARIZATION == 'true'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          APP="macos/PCKBottle/build/PCK Bottle.app"
+          ditto -c -k --keepParent "$APP" notarize.zip
+          xcrun notarytool submit notarize.zip \
+            --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" --wait
+          xcrun stapler staple "$APP"
+
+      - name: Build .dmg
+        id: dmg
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          DMG=$(bash macos/PCKBottle/scripts/make-dmg.sh)
+          echo "path=$DMG" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.dmg.outputs.path }}
+          generate_release_notes: true

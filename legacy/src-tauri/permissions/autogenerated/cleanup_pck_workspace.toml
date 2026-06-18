@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-cleanup-pck-workspace"
+description = "Enables the cleanup_pck_workspace command without any pre-configured scope."
+commands.allow = ["cleanup_pck_workspace"]
+
+[[permission]]
+identifier = "deny-cleanup-pck-workspace"
+description = "Denies the cleanup_pck_workspace command without any pre-configured scope."
+commands.deny = ["cleanup_pck_workspace"]

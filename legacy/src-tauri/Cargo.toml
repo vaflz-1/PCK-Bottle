@@ -1,0 +1,24 @@
+[package]
+name = "godot-pck-studio"
+version = "1.0.0"
+description = "A macOS-friendly UI for staging files into Godot PCK packages."
+authors = ["Godot PCK Studio contributors"]
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "godot_pck_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+godot-pck-core = { path = "../../crates/pck-core" }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6.4"
+objc2-app-kit = { version = "0.3.2", features = ["NSApplication", "NSOpenPanel", "NSSavePanel"] }
+objc2-foundation = { version = "0.3.2", features = ["NSArray", "NSString", "NSURL"] }

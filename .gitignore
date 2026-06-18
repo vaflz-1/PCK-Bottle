@@ -1,0 +1,48 @@
+# Node / legacy Tauri branch
+node_modules/
+dist/
+legacy/src-tauri/target/
+legacy/src-tauri/gen/
+
+# Rust build output. crates/pck-core/Cargo.lock IS committed for reproducible
+# release builds of the shipped binary, so it is intentionally not ignored.
+crates/*/target/
+
+# macOS native app build output
+macos/*/.build/
+macos/*/.swiftpm/
+macos/*/build/
+macos/*/dist/
+.build/
+.swiftpm/
+
+# Built / distributable artifacts — published via GitHub Releases, never committed
+*.app
+*.dmg
+*.app.zip
+
+# macOS / editor / OS cruft
+.DS_Store
+.AppleDouble
+._*
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# Xcode user state (if the package is ever opened in Xcode)
+*.xcuserstate
+xcuserdata/
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+
+# Local agent/tooling state (never published)
+.claude/
+.claude-flow/
+.swarm/
+.superpowers/
+agentdb.rvf
+agentdb.rvf.lock

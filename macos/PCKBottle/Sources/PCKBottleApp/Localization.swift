@@ -1,0 +1,344 @@
+import AppKit
+
+enum AppLocale: String, CaseIterable {
+    case ru
+    case en
+    case zh
+
+    static let storageKey = "PCKBottleLocale"
+
+    static var current: AppLocale {
+        get {
+            if let stored = UserDefaults.standard.string(forKey: storageKey),
+               let locale = AppLocale(rawValue: stored) {
+                return locale
+            }
+            for preferred in Locale.preferredLanguages {
+                let prefix = preferred.split(separator: "-").first.map(String.init) ?? preferred
+                if let locale = AppLocale(rawValue: prefix) {
+                    return locale
+                }
+            }
+            return .en
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: storageKey)
+            NotificationCenter.default.post(name: .pckBottleLanguageDidChange, object: nil)
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .ru:
+            return "Русский"
+        case .en:
+            return "English"
+        case .zh:
+            return "中文"
+        }
+    }
+}
+
+extension Notification.Name {
+    static let pckBottleLanguageDidChange = Notification.Name("pckBottleLanguageDidChange")
+}
+
+private let localizedStrings: [AppLocale: [String: String]] = [
+    .ru: [
+        "language": "Язык",
+        "games": "Игры",
+        "packages": "Пакеты",
+        "openGameOrPck": "Открыть игру или PCK",
+        "dropAppOrPck": "Перетащите .app или .pck сюда",
+        "noGameSelected": "Игра не выбрана.",
+        "noPckFound": "Файлы .pck не найдены",
+        "pckFound": "%@ - найдено .pck: %d. Выберите .pck в пакетах.",
+        "onePckFile": "1 PCK файл - выберите .pck в пакетах",
+        "manyPckFiles": "%d PCK файлов - выберите .pck в пакетах",
+        "openSelectedPck": "Открыть выбранный PCK",
+        "extractComplete": "Извлечено %d объект(ов) в %@.",
+        "name": "Имя",
+        "size": "Размер",
+        "location": "Расположение",
+        "action": "Действие",
+        "target": "Назначение",
+        "source": "Источник",
+        "backupOriginal": "Резервная копия оригинала",
+        "packChanges": "Запаковать изменения",
+        "noChanges": "Изменений нет",
+        "readingPackage": "Читаю содержимое пакета...",
+        "packageRoot": "Корень пакета",
+        "packageRootSubtitle": "%d объект(ов) в PCK - %@",
+        "packageStatus": "%d объект(ов) - %@ - %@",
+        "writingChanges": "Записываю %d изменени(й) в %@...",
+        "replaceExisting": "Заменить существующий",
+        "addNew": "Добавить новый",
+        "stagedStatus": "%d подготовлено в %@: %d заменить, %d добавить",
+        "changesSummary": "%d изменени(й): %d заменить, %d добавить - %@",
+        "backupOn": "Перед записью будет создана .bak копия оригинала.",
+        "backupOff": "Перед записью резервная копия не создаётся.",
+        "packConfirm": "Запаковать %d изменени(й) в %@?",
+        "packConfirmInfo": "%@\n%@",
+        "packResult": "Запаковано %d изменени(й): %@. %@%@",
+        "countReplace": "%d заменить",
+        "countAdd": "%d добавить",
+        "countDelete": "%d удалить",
+        "countDuplicate": "%d дублировать",
+        "backupOnShort": "Резервная копия: включена.",
+        "backupOffShort": "Резервная копия: выключена.",
+        "changes": "Изменения",
+        "changesEmptyHint": "Перетащите файлы сюда или на дерево пакета справа, чтобы добавить их.",
+        "noMatchWarning": "Ни один из путей не совпадает с файлами в пакете — игра их не загрузит. Перетащите файлы на нужную папку или проверьте пути.",
+        "extractTo": "Извлечь в…",
+        "remove": "Удалить",
+        "badgeReplace": "ЗАМЕНА",
+        "badgeAdd": "ДОБАВЛ",
+        "extractingPck": "Извлекаю %d объект(ов)…",
+        "dropOntoFolderHint": "Перетащите файлы на папку в дереве пакета.",
+        "actionDelete": "Удалить",
+        "actionDuplicate": "Дублировать",
+        "badgeDelete": "УДАЛ",
+        "badgeDuplicate": "КОПИЯ",
+        "menuExtract": "Извлечь в…",
+        "menuMove": "Переместить в…",
+        "menuCopy": "Копировать",
+        "menuDuplicate": "Дублировать",
+        "menuDelete": "Удалить",
+        "moveRemovesFromPackage": "Файлы будут извлечены в выбранную папку и удалены из пакета.",
+        "moveComplete": "Перемещено %d объект(ов) в %@ и помечено к удалению из пакета.",
+        "copyComplete": "Скопировано %d объект(ов) в буфер обмена.",
+        "duplicateStaged": "Подготовлено к дублированию: %d объект(ов).",
+        "deleteStaged": "Помечено к удалению: %d объект(ов).",
+        "groupReplace": "Заменить (%d)",
+        "groupAdd": "Добавить (%d)",
+        "groupDelete": "Удалить (%d)",
+        "groupDuplicate": "Дублировать (%d)",
+        "groupCopy": "Скопировать (%d)",
+        "undoDelete": "Удаление",
+        "undoDuplicate": "Дублирование",
+        "undoCopy": "Копирование",
+        "undoAdd": "Добавление",
+        "undoReplace": "Замену",
+        "undoRemoveChange": "Удаление изменения",
+        "undoPaste": "Вставку",
+        "menuPaste": "Вставить",
+        "pasteStaged": "Вставлено %d объект(ов).",
+        "pasteEmpty": "В буфере обмена нет файлов для вставки.",
+        "cancel": "Отмена",
+        "restoreBackup": "Восстановить из резервной копии…",
+        "restoreBackupButton": "Восстановить",
+        "restoreBackupConfirm": "Восстановить «%@» из резервной копии?",
+        "restoreBackupInfo": "Текущая версия пакета будет заменена копией от %@.",
+        "restoreBackupNone": "Резервная копия не найдена. Она создаётся при запаковке, если включена галочка «Резервная копия оригинала».",
+        "restoreBackupDone": "Восстановлено из резервной копии от %@.",
+        "fromSource": "из %@",
+    ],
+    .en: [
+        "language": "Language",
+        "games": "Games",
+        "packages": "Packages",
+        "openGameOrPck": "Open Game or PCK",
+        "dropAppOrPck": "Drop .app or .pck here",
+        "noGameSelected": "No game selected.",
+        "noPckFound": "No .pck files found",
+        "pckFound": "%@ - %d PCK file(s) found. Choose a .pck in Packages.",
+        "onePckFile": "1 PCK file - Choose a .pck in Packages",
+        "manyPckFiles": "%d PCK files - Choose a .pck in Packages",
+        "openSelectedPck": "Open Selected PCK",
+        "extractComplete": "Extracted %d item(s) into %@.",
+        "name": "Name",
+        "size": "Size",
+        "location": "Location",
+        "action": "Action",
+        "target": "Target",
+        "source": "Source",
+        "backupOriginal": "Backup original",
+        "packChanges": "Pack Changes",
+        "noChanges": "No changes",
+        "readingPackage": "Reading package directory...",
+        "packageRoot": "Package root",
+        "packageRootSubtitle": "%d item(s) in PCK - %@",
+        "packageStatus": "%d item(s) - %@ - %@",
+        "writingChanges": "Writing %d change(s) into %@...",
+        "replaceExisting": "Replace existing",
+        "addNew": "Add new",
+        "stagedStatus": "%d staged for %@: %d replace, %d add",
+        "changesSummary": "%d change(s): %d replace, %d add - %@",
+        "backupOn": "A .bak copy of the original package will be created first.",
+        "backupOff": "No backup will be created before writing.",
+        "packConfirm": "Pack %d change(s) into %@?",
+        "packConfirmInfo": "%@\n%@",
+        "packResult": "Packed %d change(s): %@. %@%@",
+        "countReplace": "%d to replace",
+        "countAdd": "%d to add",
+        "countDelete": "%d to delete",
+        "countDuplicate": "%d to duplicate",
+        "backupOnShort": "Backup original: on.",
+        "backupOffShort": "Backup original: off.",
+        "changes": "Changes",
+        "changesEmptyHint": "Drag files here or onto the package tree to add them.",
+        "noMatchWarning": "None of these paths match files already in the package — the game won't load them. Drop onto the matching folder, or check the paths.",
+        "extractTo": "Extract to…",
+        "remove": "Remove",
+        "badgeReplace": "REPLACE",
+        "badgeAdd": "ADD",
+        "extractingPck": "Extracting %d item(s)…",
+        "dropOntoFolderHint": "Drop files onto a folder in the package tree.",
+        "actionDelete": "Delete",
+        "actionDuplicate": "Duplicate",
+        "badgeDelete": "DELETE",
+        "badgeDuplicate": "DUP",
+        "menuExtract": "Extract to…",
+        "menuMove": "Move to…",
+        "menuCopy": "Copy",
+        "menuDuplicate": "Duplicate",
+        "menuDelete": "Delete",
+        "moveRemovesFromPackage": "The files are extracted to the chosen folder and removed from the package.",
+        "moveComplete": "Moved %d item(s) into %@ and marked them for removal from the package.",
+        "copyComplete": "Copied %d item(s) to the clipboard.",
+        "duplicateStaged": "Staged %d item(s) to duplicate.",
+        "deleteStaged": "Marked %d item(s) for deletion.",
+        "groupReplace": "Replace (%d)",
+        "groupAdd": "Add (%d)",
+        "groupDelete": "Delete (%d)",
+        "groupDuplicate": "Duplicate (%d)",
+        "groupCopy": "Copy (%d)",
+        "undoDelete": "Delete",
+        "undoDuplicate": "Duplicate",
+        "undoCopy": "Copy",
+        "undoAdd": "Add",
+        "undoReplace": "Replace",
+        "undoRemoveChange": "Remove Change",
+        "undoPaste": "Paste",
+        "menuPaste": "Paste",
+        "pasteStaged": "Pasted %d item(s).",
+        "pasteEmpty": "No files in the clipboard to paste.",
+        "cancel": "Cancel",
+        "restoreBackup": "Restore from Backup…",
+        "restoreBackupButton": "Restore",
+        "restoreBackupConfirm": "Restore “%@” from a backup?",
+        "restoreBackupInfo": "The current package will be replaced with the backup from %@.",
+        "restoreBackupNone": "No backup found. One is created on Pack when the “Backup original” checkbox is enabled.",
+        "restoreBackupDone": "Restored from the backup from %@.",
+        "fromSource": "from %@",
+    ],
+    .zh: [
+        "language": "语言",
+        "games": "游戏",
+        "packages": "包",
+        "openGameOrPck": "打开游戏或 PCK",
+        "dropAppOrPck": "将 .app 或 .pck 拖到这里",
+        "noGameSelected": "未选择游戏。",
+        "noPckFound": "未找到 .pck 文件",
+        "pckFound": "%@ - 找到 %d 个 PCK 文件。请在包列表中选择 .pck。",
+        "onePckFile": "1 个 PCK 文件 - 请选择 .pck",
+        "manyPckFiles": "%d 个 PCK 文件 - 请选择 .pck",
+        "openSelectedPck": "打开选中的 PCK",
+        "extractComplete": "已提取 %d 个对象到 %@。",
+        "name": "名称",
+        "size": "大小",
+        "location": "位置",
+        "action": "操作",
+        "target": "目标",
+        "source": "来源",
+        "backupOriginal": "备份原文件",
+        "packChanges": "打包更改",
+        "noChanges": "没有更改",
+        "readingPackage": "正在读取包目录...",
+        "packageRoot": "包根目录",
+        "packageRootSubtitle": "PCK 中有 %d 个对象 - %@",
+        "packageStatus": "%d 个对象 - %@ - %@",
+        "writingChanges": "正在写入 %d 个更改到 %@...",
+        "replaceExisting": "替换现有文件",
+        "addNew": "添加新文件",
+        "stagedStatus": "%d 个已准备到 %@：%d 替换，%d 添加",
+        "changesSummary": "%d 个更改：%d 替换，%d 添加 - %@",
+        "backupOn": "写入前会先创建原始包的 .bak 副本。",
+        "backupOff": "写入前不会创建备份。",
+        "packConfirm": "将 %d 个更改打包到 %@？",
+        "packConfirmInfo": "%@\n%@",
+        "packResult": "已打包 %d 个更改：%@。%@%@",
+        "countReplace": "替换 %d",
+        "countAdd": "添加 %d",
+        "countDelete": "删除 %d",
+        "countDuplicate": "复制 %d",
+        "backupOnShort": "原始备份：开启。",
+        "backupOffShort": "原始备份：关闭。",
+        "changes": "更改",
+        "changesEmptyHint": "将文件拖到这里或包树上以添加它们。",
+        "noMatchWarning": "这些路径都不匹配包中已有的文件——游戏不会加载它们。请拖到匹配的文件夹上，或检查路径。",
+        "extractTo": "提取到…",
+        "remove": "移除",
+        "badgeReplace": "替换",
+        "badgeAdd": "添加",
+        "extractingPck": "正在提取 %d 个对象…",
+        "dropOntoFolderHint": "将文件拖到包树中的文件夹上。",
+        "actionDelete": "删除",
+        "actionDuplicate": "复制",
+        "badgeDelete": "删除",
+        "badgeDuplicate": "副本",
+        "menuExtract": "提取到…",
+        "menuMove": "移动到…",
+        "menuCopy": "复制",
+        "menuDuplicate": "复制",
+        "menuDelete": "删除",
+        "moveRemovesFromPackage": "文件将被提取到所选文件夹并从包中移除。",
+        "moveComplete": "已移动 %d 个对象到 %@ 并标记为从包中移除。",
+        "copyComplete": "已复制 %d 个对象到剪贴板。",
+        "duplicateStaged": "已准备复制 %d 个对象。",
+        "deleteStaged": "已标记 %d 个对象待删除。",
+        "groupReplace": "替换 (%d)",
+        "groupAdd": "添加 (%d)",
+        "groupDelete": "删除 (%d)",
+        "groupDuplicate": "复制 (%d)",
+        "groupCopy": "拷贝 (%d)",
+        "undoDelete": "删除",
+        "undoDuplicate": "复制",
+        "undoCopy": "拷贝",
+        "undoAdd": "添加",
+        "undoReplace": "替换",
+        "undoRemoveChange": "移除更改",
+        "undoPaste": "粘贴",
+        "menuPaste": "粘贴",
+        "pasteStaged": "已粘贴 %d 个对象。",
+        "pasteEmpty": "剪贴板中没有可粘贴的文件。",
+        "cancel": "取消",
+        "restoreBackup": "从备份恢复…",
+        "restoreBackupButton": "恢复",
+        "restoreBackupConfirm": "从备份恢复“%@”？",
+        "restoreBackupInfo": "当前包将被 %@ 的备份替换。",
+        "restoreBackupNone": "未找到备份。勾选“备份原文件”后，在打包时会创建备份。",
+        "restoreBackupDone": "已从 %@ 的备份恢复。",
+        "fromSource": "来自 %@",
+    ],
+]
+
+func localized(_ key: String) -> String {
+    return localizedStrings[AppLocale.current]?[key] ?? localizedStrings[.en]?[key] ?? key
+}
+
+func localized(_ key: String, _ arguments: CVarArg...) -> String {
+    return String(format: localized(key), arguments: arguments)
+}
+
+/// Build the language submenu items for the app's main menu bar. Each item
+/// carries its locale as `representedObject` and is checkmarked when current.
+func makeLanguageMenu(target: AnyObject, action: Selector) -> NSMenu {
+    let menu = NSMenu(title: localized("language"))
+    for locale in AppLocale.allCases {
+        let item = NSMenuItem(title: locale.displayName, action: action, keyEquivalent: "")
+        item.target = target
+        item.representedObject = locale.rawValue
+        item.state = locale == AppLocale.current ? .on : .off
+        menu.addItem(item)
+    }
+    return menu
+}
+
+func applySelectedLanguage(_ sender: NSMenuItem) {
+    guard let rawValue = sender.representedObject as? String,
+          let locale = AppLocale(rawValue: rawValue) else {
+        return
+    }
+    AppLocale.current = locale
+}

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Godot PCK Studio</title>
+    <link rel="stylesheet" href="./vendor/quasar.prod.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="identity">
+          <img class="mark" src="./assets/app-icon.png" alt="" />
+          <div>
+            <h1>Godot PCK Studio</h1>
+            <p id="mode-label">Desktop</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div class="language-switcher">
+            <button
+              id="language-button"
+              class="icon-button globe-button"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              data-i18n-title="language"
+            >
+              <span aria-hidden="true">◎</span>
+            </button>
+            <div id="language-menu" class="language-menu" hidden>
+              <button type="button" data-locale="ru">Русский</button>
+              <button type="button" data-locale="en">English</button>
+              <button type="button" data-locale="zh">中文</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section id="browser-screen" class="browser-screen">
+        <section id="game-drop" class="pane game-browser">
+          <div class="pane-head">
+            <div>
+              <span class="kicker" data-i18n="gameKicker">Игра</span>
+              <h2 data-i18n="gameTitle">Откройте Godot .app</h2>
+            </div>
+            <button id="pick-game" class="button primary" type="button" data-i18n-title="openGame">
+              <span aria-hidden="true">+</span>
+              <span data-i18n="openGame">Открыть игру</span>
+            </button>
+          </div>
+
+          <input id="game-input" type="file" multiple webkitdirectory hidden />
+
+          <div class="drop-card hero-drop">
+            <span class="drop-badge">APP</span>
+            <span data-i18n="gameDrop">Перетащите .app, папку игры или .pck сюда</span>
+          </div>
+
+          <div class="browser-layout">
+            <aside class="pck-rail">
+              <div class="section-title">
+                <span data-i18n="pckFound">Найденные .pck</span>
+                <strong id="pck-count">0</strong>
+              </div>
+              <div id="pck-list" class="pck-list"></div>
+            </aside>
+
+            <section class="project-panel">
+              <div class="searchbar">
+                <span aria-hidden="true">⌕</span>
+                <input
+                  id="project-search"
+                  type="search"
+                  autocomplete="off"
+                  spellcheck="false"
+                  data-i18n-placeholder="gameSearch"
+                  placeholder="Найти .pck"
+                />
+              </div>
+              <div id="project-tree" class="tree project-tree"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+
+      <section id="editor-screen" class="editor-screen" hidden>
+        <section class="editor-head">
+          <div>
+            <span class="kicker" data-i18n="editorKicker">Редактор PCK</span>
+            <h2 id="editor-title">PCK</h2>
+            <p id="editor-subtitle"></p>
+          </div>
+          <div class="editor-actions">
+            <label class="backup-toggle">
+              <input id="backup-original" type="checkbox" checked />
+              <span data-i18n="backupOriginal">Сделать копию .pck</span>
+            </label>
+            <button id="repack-target" class="button primary" type="button" data-i18n-title="repack">
+              <span aria-hidden="true">PCK</span>
+              <span id="repack-label" data-i18n="repack">Запаковать</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="workspace">
+          <aside class="pane source-pane" id="source-drop">
+            <div class="pane-head">
+              <div>
+                <span class="kicker" data-i18n="filesKicker">Файлы</span>
+                <h2 data-i18n="filesTitle">Файлы для переноса</h2>
+              </div>
+              <button id="pick-source" class="icon-button" type="button" data-i18n-title="openFiles">
+                <span aria-hidden="true">+</span>
+              </button>
+            </div>
+            <input id="source-input" type="file" multiple webkitdirectory hidden />
+            <div class="drop-card">
+              <span class="drop-badge">IN</span>
+              <span data-i18n="filesDrop">Перетащите файлы или папку сюда</span>
+            </div>
+            <div id="source-tree" class="tree"></div>
+          </aside>
+
+          <aside class="pane pck-pane" id="content-drop">
+            <div class="pane-head">
+              <div>
+                <span class="kicker" data-i18n="packageRoot">Корень пакета</span>
+                <h2 data-i18n="pckContentTitle">Содержимое PCK</h2>
+              </div>
+              <strong id="content-count">0</strong>
+            </div>
+
+            <div class="content-status" id="content-status"></div>
+            <div id="pck-content-tree" class="tree pck-content-tree"></div>
+
+            <section class="changes-section" aria-label="Changes">
+              <div class="section-title">
+                <span data-i18n="changesTitle">Изменения</span>
+                <strong id="stage-size">0 B</strong>
+              </div>
+              <div id="pack-progress" class="pack-progress" hidden>
+                <div class="progress-copy">
+                  <span id="pack-progress-label" data-i18n="packIdle">Готово к упаковке</span>
+                  <strong id="pack-progress-percent">0%</strong>
+                </div>
+                <progress id="pack-progress-bar" max="100" value="0"></progress>
+              </div>
+              <div id="stage-list" class="change-list"></div>
+              <footer class="target-footer">
+                <span id="target-name">PCK не выбран</span>
+                <button id="clear-stage" class="button secondary compact" type="button" data-i18n="clear">
+                  Очистить
+                </button>
+              </footer>
+            </section>
+          </aside>
+        </section>
+
+        <section id="pack-dialog" class="pack-dialog" role="status" aria-live="polite" hidden>
+          <div class="pack-dialog-card">
+            <div class="pack-dialog-head">
+              <div>
+                <span class="kicker" data-i18n="packDialogKicker">Упаковка PCK</span>
+                <h3 id="pack-dialog-title" data-i18n="packDialogTitle">Идёт копирование и замена</h3>
+              </div>
+              <strong id="pack-dialog-percent">0%</strong>
+            </div>
+            <p id="pack-dialog-message" data-i18n="packDialogMessage">
+              Файлы переносятся в пакет. Не закрывайте окно до завершения.
+            </p>
+            <progress id="pack-dialog-bar" max="100" value="0"></progress>
+            <div class="pack-dialog-grid">
+              <span>
+                <strong id="pack-dialog-add-count">0</strong>
+                <small data-i18n="addAction">Добавить</small>
+              </span>
+              <span>
+                <strong id="pack-dialog-replace-count">0</strong>
+                <small data-i18n="replaceAction">Заменить</small>
+              </span>
+              <span>
+                <strong id="pack-dialog-size">0 B</strong>
+                <small data-i18n="packOperations">Операции</small>
+              </span>
+            </div>
+            <footer id="pack-dialog-backup" class="pack-dialog-backup"></footer>
+          </div>
+        </section>
+      </section>
+      <div id="q-progress-host"></div>
+    </main>
+    <script src="./vendor/vue.global.prod.js"></script>
+    <script src="./vendor/quasar.umd.prod.js"></script>
+    <script type="module" src="./quasar-progress.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
