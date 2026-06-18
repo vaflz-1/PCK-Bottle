@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-repack-pck"
+description = "Enables the repack_pck command without any pre-configured scope."
+commands.allow = ["repack_pck"]
+
+[[permission]]
+identifier = "deny-repack-pck"
+description = "Denies the repack_pck command without any pre-configured scope."
+commands.deny = ["repack_pck"]

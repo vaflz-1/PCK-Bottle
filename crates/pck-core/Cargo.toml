@@ -1,0 +1,10 @@
+[package]
+name = "godot-pck-core"
+version = "1.0.0"
+edition = "2021"
+description = "Reusable Godot PCK scanning, extraction, and repack core."
+
+[dependencies]
+md-5 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

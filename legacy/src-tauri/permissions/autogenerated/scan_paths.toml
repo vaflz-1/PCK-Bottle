@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-scan-paths"
+description = "Enables the scan_paths command without any pre-configured scope."
+commands.allow = ["scan_paths"]
+
+[[permission]]
+identifier = "deny-scan-paths"
+description = "Denies the scan_paths command without any pre-configured scope."
+commands.deny = ["scan_paths"]

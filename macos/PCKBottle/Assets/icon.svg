@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background: deep indigo -> vibrant blue -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#202A6E"/>
+      <stop offset="0.55" stop-color="#2C53D6"/>
+      <stop offset="1" stop-color="#2F6BF6"/>
+    </linearGradient>
+    <!-- Soft top highlight -->
+    <radialGradient id="topglow" cx="0.5" cy="0.16" r="0.7">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Box faces -->
+    <linearGradient id="boxFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DDE7FB"/>
+    </linearGradient>
+    <linearGradient id="boxTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EAF1FF"/>
+    </linearGradient>
+    <linearGradient id="boxRight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#C7D6F4"/>
+      <stop offset="1" stop-color="#A9BEEC"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#13D2A6"/>
+      <stop offset="1" stop-color="#10B894"/>
+    </linearGradient>
+    <!-- Squircle drop shadow -->
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="26" flood-color="#0B1233" flood-opacity="0.40"/>
+    </filter>
+    <!-- Box drop shadow -->
+    <filter id="boxShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#0A1740" flood-opacity="0.38"/>
+    </filter>
+    <clipPath id="cardClip">
+      <rect x="100" y="100" width="824" height="824" rx="190"/>
+    </clipPath>
+  </defs>
+
+  <!-- Rounded-rectangle app surface (macOS icon grid: 824 within 1024) -->
+  <g filter="url(#cardShadow)">
+    <rect x="100" y="100" width="824" height="824" rx="190" fill="url(#bg)"/>
+  </g>
+  <g clip-path="url(#cardClip)">
+    <rect x="100" y="100" width="824" height="824" fill="url(#topglow)"/>
+    <!-- gentle inner top sheen -->
+    <ellipse cx="512" cy="150" rx="520" ry="180" fill="#FFFFFF" opacity="0.06"/>
+  </g>
+
+  <!-- Package box (isometric), centered, with a teal "inject file" arrow -->
+  <g filter="url(#boxShadow)">
+    <!-- top face -->
+    <polygon points="300,392 640,392 752,326 412,326" fill="url(#boxTop)"/>
+    <!-- right face -->
+    <polygon points="640,392 752,326 752,668 640,734" fill="url(#boxRight)"/>
+    <!-- front face -->
+    <rect x="300" y="392" width="340" height="342" rx="20" fill="url(#boxFront)"/>
+  </g>
+
+  <!-- crate seam on the front face for a package read -->
+  <line x1="300" y1="540" x2="640" y2="540" stroke="#C2CFEC" stroke-width="6" opacity="0.55"/>
+  <!-- edge crispening -->
+  <polyline points="300,392 640,392 640,734" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.5"/>
+  <polyline points="640,392 752,326" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.35"/>
+
+  <!-- Teal arrow piercing into the package (the modify/inject action) -->
+  <g>
+    <path d="M212 470 H392 V424 L520 512 L392 600 V554 H212 Z" fill="url(#arrow)"/>
+    <path d="M212 470 H392 V424 L520 512 L392 600 V554 H212 Z" fill="none" stroke="#0E9C7E" stroke-width="2" opacity="0.5"/>
+  </g>
+
+  <!-- brand accent dots, subtle, bottom-right -->
+  <circle cx="690" cy="700" r="13" fill="#3B6BFF"/>
+  <circle cx="730" cy="700" r="13" fill="#13D2A6"/>
+  <circle cx="770" cy="700" r="13" fill="#8B5CF6"/>
+</svg>
