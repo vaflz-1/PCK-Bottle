@@ -42,6 +42,7 @@ protocol DropTargetViewDelegate: AnyObject {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var browserWindowController: BrowserWindowController?
+    private let updateCoordinator = UpdateCoordinator()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installMainMenu()
@@ -53,6 +54,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         ensureBrowserWindow()
         NSApp.activate(ignoringOtherApps: true)
+        // Silent, throttled (once/day) check that only speaks up when a newer
+        // release exists — no launch pop-ups when already up to date.
+        updateCoordinator.checkOnLaunchIfDue()
     }
 
     @discardableResult
@@ -101,6 +105,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let supportItem = NSMenuItem(title: localized("support"), action: #selector(openSupport), keyEquivalent: "")
         supportItem.target = self
         appMenu.addItem(supportItem)
+        let updatesItem = NSMenuItem(title: localized("checkForUpdates"), action: #selector(checkForUpdates), keyEquivalent: "")
+        updatesItem.target = self
+        appMenu.addItem(updatesItem)
         appMenu.addItem(NSMenuItem.separator())
         appMenu.addItem(NSMenuItem(title: "Quit PCK Bottle", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
@@ -168,6 +175,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openSupport() {
         openKoFi()
+    }
+
+    @objc private func checkForUpdates() {
+        updateCoordinator.check(userInitiated: true)
     }
 }
 
