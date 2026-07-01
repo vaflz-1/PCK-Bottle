@@ -101,6 +101,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(appMenuItem)
         let appMenu = NSMenu(title: "PCK Bottle")
         appMenuItem.submenu = appMenu
+        let aboutItem = NSMenuItem(title: localized("aboutApp"), action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        appMenu.addItem(aboutItem)
+        appMenu.addItem(NSMenuItem.separator())
         // A single, unobtrusive donation entry — no launch pop-ups or nagging.
         let supportItem = NSMenuItem(title: localized("support"), action: #selector(openSupport), keyEquivalent: "")
         supportItem.target = self
@@ -145,8 +149,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         editMenu.addItem(NSMenuItem(title: "Select All", action: NSSelectorFromString(selectAllActionName), keyEquivalent: "a"))
 
         // Language menu in the menu bar (replaces the in-window globe button).
-        languageMenuItem = NSMenuItem()
-        let languageMenuItem = self.languageMenuItem!
+        let languageMenuItem = NSMenuItem()
+        self.languageMenuItem = languageMenuItem
         mainMenu.addItem(languageMenuItem)
         rebuildLanguageMenu()
 
@@ -179,6 +183,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func checkForUpdates() {
         updateCoordinator.check(userInitiated: true)
+    }
+
+    @objc private func showAbout() {
+        let credits = NSMutableAttributedString(string: localized("aboutCredits") + "\n")
+        let linkText = "github.com/\(AppInfo.repoOwner)/\(AppInfo.repoName)"
+        let link = NSMutableAttributedString(string: linkText)
+        if let url = URL(string: "https://github.com/\(AppInfo.repoOwner)/\(AppInfo.repoName)") {
+            link.addAttribute(.link, value: url, range: NSRange(location: 0, length: link.length))
+        }
+        credits.append(link)
+        NSApp.orderFrontStandardAboutPanel(options: [
+            .applicationName: "PCK Bottle",
+            .applicationVersion: AppInfo.currentVersion.description,
+            .credits: credits,
+        ])
     }
 }
 
