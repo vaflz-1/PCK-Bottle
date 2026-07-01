@@ -205,9 +205,44 @@ final class UpdateCoordinator {
             return
         }
 
+        // Verify the code signature, and when we are Developer-ID signed require
+        // the update to carry the same Team ID. This is the trust anchor that
+        // stops a compromised release from installing a malicious app over us —
+        // Info.plist fields alone are trivially forgeable.
+        guard verifyCodeSignature(of: stagedApp) else {
+            fail(localized("updateSignatureFailed"))
+            return
+        }
+
         DispatchQueue.main.async {
             self.swapAndRelaunch(stagedApp: stagedApp, destination: bundleURL, workDir: work)
         }
+    }
+
+    /// Confirms the staged bundle's signature is structurally valid and, when the
+    /// running app is Developer-ID signed (has a Team ID), that the update is
+    /// signed by the same team. If we are only ad-hoc signed there is no identity
+    /// to pin against, so an intact signature plus the HTTPS-to-GitHub transport
+    /// is the strongest check available.
+    private func verifyCodeSignature(of appURL: URL) -> Bool {
+        let verify = runProcess("/usr/bin/codesign", ["--verify", "--deep", "--strict", appURL.path])
+        guard verify.status == 0 else { return false }
+        guard let runningTeam = teamIdentifier(of: Bundle.main.bundleURL) else {
+            return true  // ad-hoc / unsigned running app: nothing to pin to
+        }
+        return teamIdentifier(of: appURL) == runningTeam
+    }
+
+    /// Extracts `TeamIdentifier` from `codesign -dvv` (printed on stderr).
+    /// Returns nil for ad-hoc / unsigned bundles (codesign prints "not set").
+    private func teamIdentifier(of appURL: URL) -> String? {
+        let info = runProcess("/usr/bin/codesign", ["-dvv", appURL.path])
+        for line in info.stderr.split(separator: "\n") {
+            guard line.hasPrefix("TeamIdentifier=") else { continue }
+            let value = line.dropFirst("TeamIdentifier=".count).trimmingCharacters(in: .whitespaces)
+            return value == "not set" ? nil : String(value)
+        }
+        return nil
     }
 
     /// Confirms the staged bundle is really PCK Bottle and is at least as new as
@@ -232,13 +267,16 @@ final class UpdateCoordinator {
     private func swapAndRelaunch(stagedApp: URL, destination: URL, workDir: URL) {
         let scriptURL = workDir.appendingPathComponent("swap.sh")
         let pid = ProcessInfo.processInfo.processIdentifier
+        // Paths are passed as positional arguments (argv), never interpolated
+        // into the script body, so a path containing shell metacharacters
+        // cannot break out and inject commands.
         let script = """
         #!/bin/bash
         set -e
-        PID="\(pid)"
-        SRC="\(stagedApp.path)"
-        DEST="\(destination.path)"
-        WORK="\(workDir.path)"
+        PID="$1"
+        SRC="$2"
+        DEST="$3"
+        WORK="$4"
         # Wait for PCK Bottle to fully quit before replacing its bundle.
         while /bin/kill -0 "$PID" 2>/dev/null; do /bin/sleep 0.2; done
         /bin/sleep 0.3
@@ -259,7 +297,7 @@ final class UpdateCoordinator {
 
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/bash")
-        task.arguments = [scriptURL.path]
+        task.arguments = [scriptURL.path, String(pid), stagedApp.path, destination.path, workDir.path]
         do {
             try task.run()
         } catch {

@@ -94,18 +94,23 @@ struct GitHubRelease: Decodable {
 
     var version: AppVersion? { AppVersion(tagName) }
 
-    /// The distributable `.dmg` asset, if any. The download host is restricted
-    /// to GitHub so a tampered API response cannot redirect the auto-installer
-    /// to an attacker-controlled origin.
+    /// The distributable `.dmg` asset, if any. The download URL is pinned to
+    /// `https://github.com/<owner>/<repo>/releases/download/…` — an exact host
+    /// and repo path, over TLS — so a tampered API response cannot redirect the
+    /// auto-installer to another origin or a different project's artifact.
+    /// (URLSession still follows GitHub's transparent redirect to its CDN; only
+    /// the API-supplied URL is validated here.)
     var dmgAsset: GitHubReleaseAsset? {
-        assets.first { asset in
+        let expectedPrefix = "/\(AppInfo.repoOwner)/\(AppInfo.repoName)/releases/download/"
+        return assets.first { asset in
             guard asset.name.lowercased().hasSuffix(".dmg"),
-                  let host = URL(string: asset.browserDownloadURL)?.host?.lowercased() else {
+                  let url = URL(string: asset.browserDownloadURL),
+                  url.scheme?.lowercased() == "https",
+                  url.host?.lowercased() == "github.com",
+                  url.path.hasPrefix(expectedPrefix) else {
                 return false
             }
-            return host == "github.com"
-                || host.hasSuffix(".github.com")
-                || host.hasSuffix("githubusercontent.com")
+            return true
         }
     }
 }

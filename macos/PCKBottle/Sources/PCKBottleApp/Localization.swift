@@ -149,6 +149,7 @@ private let localizedStrings: [AppLocale: [String: String]] = [
         "updateNotBundled": "Автообновление доступно только для установленного приложения (.app).",
         "updateNotWritable": "Нет прав на запись в папку приложения. Переустановите вручную.",
         "updateOpenPagePrompt": "Открыть страницу релиза, чтобы обновить вручную?",
+        "updateSignatureFailed": "Не удалось проверить подпись обновления. Установка отменена в целях безопасности.",
         "ok": "ОК",
     ],
     .en: [
@@ -256,6 +257,7 @@ private let localizedStrings: [AppLocale: [String: String]] = [
         "updateNotBundled": "Auto-update is only available for the installed app (.app).",
         "updateNotWritable": "No write access to the app's folder. Please reinstall manually.",
         "updateOpenPagePrompt": "Open the release page to update manually?",
+        "updateSignatureFailed": "The update's code signature could not be verified. Installation was cancelled for your safety.",
         "ok": "OK",
     ],
     .zh: [
@@ -363,6 +365,7 @@ private let localizedStrings: [AppLocale: [String: String]] = [
         "updateNotBundled": "自动更新仅适用于已安装的应用 (.app)。",
         "updateNotWritable": "没有应用文件夹的写入权限。请手动重新安装。",
         "updateOpenPagePrompt": "打开发布页面以手动更新？",
+        "updateSignatureFailed": "无法验证更新的代码签名。为安全起见，已取消安装。",
         "ok": "确定",
     ],
 ]
