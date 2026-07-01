@@ -334,11 +334,14 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
             titleRow.leadingAnchor.constraint(equalTo: stack.leadingAnchor),
             titleRow.trailingAnchor.constraint(equalTo: stack.trailingAnchor),
             openButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 180),
-            dropView.heightAnchor.constraint(equalToConstant: 168),
+            dropView.heightAnchor.constraint(greaterThanOrEqualToConstant: 168),
             dropView.leadingAnchor.constraint(equalTo: stack.leadingAnchor),
             dropView.trailingAnchor.constraint(equalTo: stack.trailingAnchor),
             supportButton.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24),
             supportButton.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16),
+            // Let the drop zone grow to fill the sidebar down to just above Support,
+            // so it reads as a large, inviting target instead of a small box.
+            dropView.bottomAnchor.constraint(equalTo: supportButton.topAnchor, constant: -16),
         ])
 
         view = container
@@ -391,10 +394,13 @@ final class GameSourceViewController: NSViewController, DropTargetViewDelegate {
 
     private func updateSourceStatus() {
         guard let url = loadedSourceURL else {
-            statusLabel.stringValue = localized("dropAppOrPck")
+            // The drop zone below already prompts "Drop .app or .pck here", so
+            // keep the subtitle hidden until a source loads to avoid duplication.
+            statusLabel.stringValue = ""
+            statusLabel.isHidden = true
             return
         }
-
+        statusLabel.isHidden = false
         if loadedPackageCount == 0 {
             statusLabel.stringValue = "\(url.lastPathComponent) - \(localized("noPckFound"))"
         } else {
@@ -411,6 +417,8 @@ final class PackageListViewController: NSViewController, NSTableViewDataSource, 
     private let tableView = NSTableView()
     private let countLabel = NSTextField(labelWithString: "")
     private let openButton = NSButton(title: "Open Selected PCK", target: nil, action: nil)
+    private let scrollView = NSScrollView()
+    private let emptyStateLabel = NSTextField(labelWithString: "")
     private let nameColumn = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("name"))
     private let locationColumn = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("location"))
     private let sizeColumn = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("size"))
@@ -430,7 +438,9 @@ final class PackageListViewController: NSViewController, NSTableViewDataSource, 
 
         let toolbar = NSStackView(views: [titleLabel, countLabel, openButton])
         toolbar.orientation = .horizontal
-        toolbar.alignment = .centerY
+        // Baseline-align so "Packages" and the count sit on the same text line,
+        // matching the left panel's title baseline.
+        toolbar.alignment = .firstBaseline
         toolbar.spacing = 16
         toolbar.translatesAutoresizingMaskIntoConstraints = false
 
@@ -452,14 +462,23 @@ final class PackageListViewController: NSViewController, NSTableViewDataSource, 
         tableView.usesAlternatingRowBackgroundColors = true
         tableView.rowHeight = 32
 
-        let scrollView = NSScrollView()
         scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
         scrollView.documentView = tableView
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
+        // Shown centered in place of the empty striped table when there are no
+        // packages yet — cleaner than a grid of blank alternating rows.
+        emptyStateLabel.font = NSFont.systemFont(ofSize: 15, weight: .regular)
+        emptyStateLabel.textColor = .secondaryLabelColor
+        emptyStateLabel.alignment = .center
+        emptyStateLabel.lineBreakMode = .byWordWrapping
+        emptyStateLabel.maximumNumberOfLines = 2
+        emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
+
         container.addSubview(toolbar)
         container.addSubview(scrollView)
+        container.addSubview(emptyStateLabel)
 
         NSLayoutConstraint.activate([
             toolbar.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24),
@@ -469,6 +488,10 @@ final class PackageListViewController: NSViewController, NSTableViewDataSource, 
             scrollView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: toolbar.bottomAnchor, constant: 20),
             scrollView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            emptyStateLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            emptyStateLabel.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
+            emptyStateLabel.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 24),
+            emptyStateLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -24),
         ])
 
         view = container
@@ -584,6 +607,15 @@ final class PackageListViewController: NSViewController, NSTableViewDataSource, 
         } else {
             countLabel.stringValue = localized("manyPckFiles", packages.count)
         }
+        updateEmptyState()
+    }
+
+    /// Swap the striped table for a centered hint when there is nothing to list.
+    private func updateEmptyState() {
+        let isEmpty = packages.isEmpty
+        scrollView.isHidden = isEmpty
+        emptyStateLabel.isHidden = !isEmpty
+        emptyStateLabel.stringValue = localized("noPckHint")
     }
 }
 
